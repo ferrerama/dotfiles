@@ -14,7 +14,12 @@ use({ "iamcco/markdown-preview.nvim", run = "cd app && npm install", setup = fun
 use 'nvim-lua/plenary.nvim'
 use 'jiangmiao/auto-pairs'
 use 'neovim/nvim-lspconfig'
---use 'glepnir/lspsaga.nvim'
+use({"glepnir/lspsaga.nvim", 
+     branch = "main", 
+     config = function() require('lspsaga').setup({
+     }) 
+     end, 
+   })
 use 'hrsh7th/cmp-nvim-lsp'
 use 'hrsh7th/cmp-buffer'
 use 'hrsh7th/cmp-path'
@@ -55,7 +60,7 @@ vim.opt.number = true
 map ('n','<C-j>','<C-w>j')
 map ('n','<C-h>','<C-w>h')
 map ('n','<C-k>','<C-w>k')
-map ('n','<C-l>','<C-w>l')
+map ('n','<C-x>','<C-w>l')
 
 -- copy to system clipboard via <Ctrl-c> in visual mode.
 map ('v','<C-c>','+y')
@@ -793,6 +798,11 @@ cmp.setup.filetype('gitcommit', {
 
 
 --- HERE put Lspsaga_config, keymaps following are from this plug.
+
+-- Lspsaga
+
+
+-- AQUI FINALIZA SAGA
 
 local opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>df', '<Cmd>Lspsaga diagnostic_jump_next<cr>', opts)
