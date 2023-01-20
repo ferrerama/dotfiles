@@ -1,3 +1,4 @@
+--CONFIGS IN ONE FILE
 vim.opt.termguicolors = true
 
 return require('packer').startup(function(use)
