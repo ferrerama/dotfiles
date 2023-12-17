@@ -5,11 +5,4 @@ Este archivo sirve para configurar neovim en windowds
 * Aplicar el init.lua
 * Hacer los cambios minimos
 
-´´´
-#include<iostream>
-int main(){
-std::cout<<"Hello";
-return 0
-}
-´´´
-
+Sirve de ayuda para poder aplicar correctamente en este sistema operativo.
