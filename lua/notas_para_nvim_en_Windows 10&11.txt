@@ -1,0 +1,28 @@
+Para instalar neovim en Windows, dirigido a c++ (aunque se puede usar cualquier lenguaje, instalando requisitos minimos).
+para ello se requieren estos programas, los cuales recomiendo utilizar con el manejador de paquetes scoop que no es limitativo como otros.
+
+1. git  (para manejar repositorios), git tambien descargara 7zip.
+2. mingw-winlibs-llvm-ucrt-mcf (para compiladores c/c++, cmake, make, clang, clangd).
+3. neovim
+4. pwsh (para correcta funcionamiento de la terminal de windows, que se debe descargar de app/store)
+5. ripgrep (para telescope)
+6. fd   (para telescope)
+7. fzf  (para que funcione telescope)
+8. tree-sitter (para descargar el ejectubable de los parsers).
+
+Notas:
+Cuando se carga el init.lua, habra problemas con telescope/fzf, para eso ir a la carpeta del complemento
+eliminar carpeta build, y ejecutar sobre esta carpeta make para constuir el .dll
+
+Por alguna razon MasonInstall Clangd, no logra cargar a la primera.
+como me ha funcionado es tratar de instalar nuevamente clangd,
+esta vez dara un error porque no puede eliminar carpeta de primera instalacion,
+en este caso esperar y luego aparecera vinculado al clangd pero de: mingw-winlibs-llvm-ucrt-mcf
+y de no del clangd cargado con Mason, pero si se desinstala el clangd de Mason dejara de funcionar,
+ya que este es el aplicativo que enlaza las librerias de libstd++.
+
+En Linux es mas o menos lo mismo, con la diferencia que en Linux quizas se requiera mas dependencias,
+pero el sistema indica cuales son, y basicamente aqui no se experimentaran errores de ningun tipo.
+
+El init.lua que se adjunta funciona con colorscheme nord transparente, este init perfectamente se 
+dividir en carpetas enlazadas, pero en mi caso lo veo poco practico, ya que los enlaces en windows son mas complicados que en linux que lee la raiz.

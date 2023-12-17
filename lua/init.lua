@@ -1,4 +1,3 @@
---CONFIGS IN ONE FILE
 vim.opt.termguicolors = true
 
 return require('packer').startup(function(use)
@@ -9,18 +8,12 @@ use 'nvim-lualine/lualine.nvim'
 use 'kyazdani42/nvim-web-devicons'
 use 'ryanoasis/vim-devicons'
 use 'airblade/vim-gitgutter'
-use 'shaunsingh/nord.nvim'
 use 'lukas-reineke/indent-blankline.nvim'
 use({ "iamcco/markdown-preview.nvim", run = "cd app && npm install", setup = function() vim.g.mkdp_filetypes = { "markdown" } end, ft = { "markdown" }, })
 use 'nvim-lua/plenary.nvim'
 use 'jiangmiao/auto-pairs'
 use 'neovim/nvim-lspconfig'
-use({"glepnir/lspsaga.nvim", 
-     branch = "main", 
-     config = function() require('lspsaga').setup({
-     }) 
-     end, 
-   })
+use({"glepnir/lspsaga.nvim", branch = "main", config = function() require('lspsaga').setup({}) end,})
 use 'hrsh7th/cmp-nvim-lsp'
 use 'hrsh7th/cmp-buffer'
 use 'hrsh7th/cmp-path'
@@ -31,18 +24,31 @@ use 'p00f/clangd_extensions.nvim'
 use 'williamboman/mason.nvim'
 use 'nvim-treesitter/nvim-treesitter'
 use 'numToStr/Comment.nvim'
-use {'nvim-telescope/telescope.nvim', tag = '0.1.0', -- or, branch = '0.1.x',
+use {'nvim-telescope/telescope.nvim', tag = '0.1.4', -- or, branch = '0.1.x',
   requires = { {'nvim-lua/plenary.nvim'} } }
 use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
 use 'norcalli/nvim-colorizer.lua'
 use 'windwp/nvim-ts-autotag'
 use 'rafamadriz/friendly-snippets'
-use 'cdelledonne/vim-cmake'
 use 'voldikss/vim-floaterm'
+use 'cdelledonne/vim-cmake'
+use 'shaunsingh/nord.nvim'
+
+-- Color scheme nord
+vim.g.nord_contrast = false
+vim.g.nord_borders = true
+vim.g.nord_disable_background = true
+vim.g.nord_cursorline_transparent = true
+vim.g.nord_enable_sidebar_background = false
+vim.g.nord_italic = false
+vim.g.nord_uniform_diff_background = true
+vim.g.nord_bold = false
+
+-- Load the colorscheme
+require('nord').set()
+
 
 --KEYMAPS..
--- key bindings
---  window switching
 function map(mode, lhs, rhs, opts)
     local options = { noremap = true }
     if opts then
@@ -80,26 +86,18 @@ map ('n','<C-q>',':q<CR>')
 --saveFiles
 map ('n','<C-s>',':wa<CR>')
 map ('i','<c-s><Esc>',':wa<CR>a')
-
---fix jump list
--- line moving dark-art
--- fix visual mode
--- Do not yank with x_
--- Resize window
-
 map ('n','<C-w>h','<C-w>>')
 map ('n','<C-w>j','<C-w>-')
 map ('n','<C-w>k','<C-w>+')
 map ('n','<C-w>l','<C-w><')
-
-
 
 --KEYMAPS_PLUGS
 local keymap = vim.api.nvim_set_keymap
 local opts = { noremap = true }
 
 -- CMake
-keymap('', '<leader>mg', ':CMakeGenerate<cr>', {})
+keymap('', '<leader>mg', ':CMakeGenerate -G "MinGW Makefiles"<cr>', {})
+keymap('', '<leader>mt', ':CMakeTest<cr>', {})
 keymap('', '<leader>mb', ':CMakeBuild<cr>', {})
 keymap('', '<leader>mq', ':CMakeClose<cr>', {})
 keymap('', '<leader>mc', ':CMakeClean<cr>', {})
@@ -110,7 +108,6 @@ vim.cmd[[let g:floaterm_wintype = 'split']]
 vim.cmd[[let g:floaterm_height = 0.2]]
 
 --AUTOTAG
-
 require 'nvim-treesitter.configs'.setup {
     autotag = {
         enable = true,
@@ -118,100 +115,40 @@ require 'nvim-treesitter.configs'.setup {
 }
 
 --COLORIZER
-
 require 'colorizer'.setup()
 
-
--- THEME(COLORSCHEME)
-
--- Color scheme nord
-vim.g.nord_contrast = true
-vim.g.nord_borders = false
-vim.g.nord_disable_background = true
-vim.g.nord_italic = false
-vim.g.nord_uniform_diff_background = false
-vim.g.nord_bold = false
-nord_cursorline_transparent = true
-
--- Load the colorscheme
-require('nord').set()
-
 -- COMMENT
-
--- comment.nvim
 require('Comment').setup {
-    ---Add a space b/w comment and the line
-    ---@type boolean|fun():boolean
     padding = true,
-    ---Whether the cursor should stay at its position
-    ---NOTE: This only affects NORMAL mode mappings and doesn't work with dot-repeat
-    ---@type boolean
     sticky = true,
-    ---Lines to be ignored while comment/uncomment.
-    ---Could be a regex string or a function that returns a regex string.
-    ---Example: Use '^$' to ignore empty lines
-    ---@type string|fun():string
     ignore = '^$',
-    ---LHS of toggle mappings in NORMAL + VISUAL mode
-    ---@type table
     toggler = {
-        ---Line-comment toggle keymap
         line = 'gcc',
-        ---Block-comment toggle keymap
         block = 'gbc',
     },
-    ---LHS of operator-pending mappings in NORMAL + VISUAL mode
-    ---@type table
     opleader = {
-        ---Line-comment keymap
         line = 'gc',
-        ---Block-comment keymap
         block = 'gb',
     },
-    ---LHS of extra mappings
-    ---@type table
     extra = {
-        ---Add comment on the line above
         above = 'gcO',
-        ---Add comment on the line below
         below = 'gco',
-        ---Add comment at the end of line
         eol = 'gcA',
     },
-    ---Create basic (operator-pending) and extended mappings for NORMAL + VISUAL mode
-    ---NOTE: If `mappings = false` then the plugin won't create any mappings
-    ---@type boolean|table
     mappings = {
-        ---Operator-pending mapping
-        ---Includes `gcc`, `gbc`, `gc[count]{motion}` and `gb[count]{motion}`
-        ---NOTE: These mappings can be changed individually by `opleader` and `toggler` config
         basic = true,
-        ---Extra mapping
-        ---Includes `gco`, `gcO`, `gcA`
         extra = false,
-        ---Extended mapping
-        ---Includes `g>`, `g<`, `g>[count]{motion}` and `g<[count]{motion}`
         extended = false,
     },
-    ---Pre-hook, called before commenting the line
-    ---@type fun(ctx: CommentCtx):string
     pre_hook = nil,
-    ---Post-hook, called after commenting is done
-    ---@type fun(ctx: CommentCtx)
     post_hook = nil,
 }
 
 --INDENTLINE
-
--- indent_blankline
-require("indent_blankline").setup {
-    -- for example, context is off by default, use this to turn it on
-    show_current_context = true,
-    show_current_context_start = false,
+require("ibl").setup {
 }
 
 -- LUALINE
--- lualine config
 require('lualine').setup {
     options = {
         icons_enabled = true,
@@ -248,12 +185,9 @@ require('lualine').setup {
     },
     tabline = {},
     extensions = {}
-}
+   }
 
 -- LUASNIP
-
--- Luasnip
--- key map
 vim.keymap.set({ "i", "s" }, "<Tab>", function()
     if ls.expand_or_jumpable() then
         ls.expand_or_jump()
@@ -304,17 +238,12 @@ ls.add_snippets(nil, {
 require("luasnip.loaders.from_vscode").lazy_load()
 
 -- NVIMTREE
-
--- nvim-tree
 require("nvim-tree").setup {
     auto_reload_on_write = true,
     disable_netrw = false,
     hijack_cursor = false,
     hijack_netrw = true,
     hijack_unnamed_buffer_when_opening = false,
-    ignore_buffer_on_setup = false,
-    open_on_setup = true,
-    open_on_setup_file = false,
     sort_by = "name",
     root_dirs = {},
     prefer_startup_root = false,
@@ -322,24 +251,16 @@ require("nvim-tree").setup {
     reload_on_bufenter = false,
     respect_buf_cwd = false,
     on_attach = "disable",
-    remove_keymaps = false,
     select_prompts = false,
     view = {
         adaptive_size = false,
         centralize_selection = false,
         width = 30,
-        hide_root_folder = false,
         side = "left",
         preserve_window_proportions = false,
         number = false,
         relativenumber = false,
         signcolumn = "yes",
-        mappings = {
-            custom_only = false,
-            list = {
-                -- user mappings go here
-            },
-        },
         float = {
             enable = false,
             quit_on_focus_loss = true,
@@ -421,7 +342,7 @@ require("nvim-tree").setup {
         update_root = false,
         ignore_list = {},
     },
-    ignore_ft_on_setup = {},
+    --ignore_ft_on_setup = {},
     system_open = {
         cmd = "",
         args = {},
@@ -534,8 +455,6 @@ require("nvim-tree").setup {
 vim.keymap.set("n", "<Leader>t", ":NvimTreeToggle<CR>", {})
 
 -- TELESCOPE
-
--- Telescope
 require('telescope').setup {
     defaults = {
         mappings = {
@@ -562,39 +481,19 @@ vim.keymap.set('n', '<leader>fg', builtin.git_commits, {})
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 
 -- TREESITTER
-
--- Treesitter
 require 'nvim-treesitter.configs'.setup {
-    -- A list of parser names, or "all"
     ensure_installed = {},
-    -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
-    -- Automatically install missing parsers when entering buffer
-    -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
     auto_install = true,
-    -- List of parsers to ignore installing (for "all")
     ignore_install = {},
-    ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-    -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
     highlight = {
-        -- `false` will disable the whole extension
         enable = true,
-        -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
-        -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
-        -- the name of the parser)
-        -- list of language that will be disabled
         disable = {},
-        -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-        -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-        -- Using this option may slow down your editor, and you may see some duplicate highlights.
-        -- Instead of true it can also be a list of languages
         additional_vim_regex_highlighting = false,
     },
 }
 
-
 -- LSP Configs
-
 local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 require("mason").setup()
 local lspconfig = require("lspconfig")
@@ -637,14 +536,23 @@ lspconfig.vimls.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
-lspconfig.sumneko_lua.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-}
+lua_ls = {
+  Lua = {
+    workspace = { checkThirdParty = false },
+    telemetry = { enable = false },
+  },
+},
+
 lspconfig.tsserver.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
+
+lspconfig.clangd.setup {
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+
 lspconfig.html.setup {
     capabilities = capabilities,
     on_attach = on_attach
@@ -671,36 +579,18 @@ require("clangd_extensions").setup {
         on_attach = on_attach,
     },
     extensions = {
-        -- defaults:
-        -- Automatically set inlay hints (type hints)
         autoSetHints = false,
-        -- These apply to the default ClangdSetInlayHints command
         inlay_hints = {
-            -- Only show inlay hints for the current line
             only_current_line = false,
-            -- Event which triggers a refersh of the inlay hints.
-            -- You can make this "CursorMoved" or "CursorMoved,CursorMovedI" but
-            -- not that this may cause  higher CPU usage.
-            -- This option is only respected when only_current_line and
-            -- autoSetHints both are true.
             only_current_line_autocmd = "CursorHold",
-            -- whether to show parameter hints with the inlay hints or not
             show_parameter_hints = true,
-            -- prefix for parameter hints
             parameter_hints_prefix = "<- ",
-            -- prefix for all the other hints (type, chaining)
             other_hints_prefix = "=> ",
-            -- whether to align to the length of the longest line in the file
             max_len_align = false,
-            -- padding from the left if max_len_align is true
             max_len_align_padding = 1,
-            -- whether to align to the extreme right or not
             right_align = true,
-            -- padding from the right if right_align is true
             right_align_padding = 0,
-            -- The color of the hints
             highlight = "Comment",
-            -- The highlight group priority for extmark
             priority = 0,
         },
         ast = {
@@ -734,13 +624,6 @@ require("clangd_extensions").setup {
     }
 }
 
---  local config = {
---      cmd = { '/usr/local/bin/jdtls' },
---      root_dir = vim.fs.dirname(vim.fs.find({ '.gradlew', '.git', 'mvnw' }, { upward = true })[1]),
---  }
---  require('jdtls').start_or_attach(config)
-
-
 -- nvim-cmp
 vim.opt.completeopt = {
     "menu",
@@ -759,8 +642,6 @@ cmp.setup({
         end,
     },
     window = {
-        -- completion = cmp.config.window.bordered(),
-        -- documentation = cmp.config.window.bordered(),
     },
     mapping = cmp.mapping.preset.insert({
         ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
@@ -815,14 +696,7 @@ cmp.setup.filetype('gitcommit', {
     })
 })
 
-
---- HERE put Lspsaga_config, keymaps following are from this plug.
-
--- Lspsaga
-
-
 -- AQUI FINALIZA SAGA
-
 local opts = { noremap = true, silent = true }
 vim.keymap.set('n', '<leader>df', '<Cmd>Lspsaga diagnostic_jump_next<cr>', opts)
 vim.keymap.set('n', '<leader>dp', '<Cmd>Lspsaga diagnostic_jump_prev<cr>', opts)
@@ -833,21 +707,6 @@ vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", opts)
 vim.keymap.set("v", "<leader>ca", "<cmd><C-U>Lspsaga range_code_action<CR>", opts)
 
 -- Use fontawesome icons as signs
-
 local cmd = vim.cmd
 local api = vim.api
-
-cmd([[
-let g:gitgutter_sign_added = '+'
-let g:gitgutter_sign_modified = '>'
-let g:gitgutter_sign_removed = '-'
-let g:gitgutter_sign_removed_first_line = '^'
-let g:gitgutter_sign_modified_removed = '<'
-
-let g:gitgutter_override_sign_column_highlight = 1
-highlight SignColumn guibg=none
-highlight SignColumn ctermbg=none
-]])
-
 end)
-
