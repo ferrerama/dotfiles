@@ -6,3 +6,4 @@ Este archivo sirve para configurar neovim en SO Windows, para ello deben seguirs
 * Hacer los cambios minimos que van apareciendo
 
 Sirve de ayuda para poder aplicar correctamente.
+Ya que normalmente en Linux no es ningun problema.
