@@ -9,7 +9,7 @@ use 'kyazdani42/nvim-web-devicons'
 use 'ryanoasis/vim-devicons'
 use 'airblade/vim-gitgutter'
 use 'lukas-reineke/indent-blankline.nvim'
-use({ "iamcco/markdown-preview.nvim", run = "cd app && npm install", setup = function() vim.g.mkdp_filetypes = { "markdown" } end, ft = { "markdown" }, })
+use 'davidgranstrom/nvim-markdown-preview'
 use 'nvim-lua/plenary.nvim'
 use 'jiangmiao/auto-pairs'
 use 'neovim/nvim-lspconfig'
@@ -27,6 +27,7 @@ use 'numToStr/Comment.nvim'
 use {'nvim-telescope/telescope.nvim', tag = '0.1.4', -- or, branch = '0.1.x',
   requires = { {'nvim-lua/plenary.nvim'} } }
 use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
+use 'debugloop/telescope-undo.nvim'
 use 'norcalli/nvim-colorizer.lua'
 use 'windwp/nvim-ts-autotag'
 use 'rafamadriz/friendly-snippets'
@@ -43,9 +44,21 @@ vim.g.nord_enable_sidebar_background = false
 vim.g.nord_italic = false
 vim.g.nord_uniform_diff_background = true
 vim.g.nord_bold = false
-
 -- Load the colorscheme
 require('nord').set()
+
+local dap = require('dap')
+dap.configurations.cpp = {
+  {
+  type ="cpp";
+  request = 'launch';
+  name = "Launch file";
+  program = "${file}";
+  gdbPath = function()
+  return 'C:\\Users\\maferrera\\scoop\\apps\\mingw-winlibs-llvm-ucrt-mcf\\13.2.0-16.0.6-11.0.1-r2\\bin\\gdb.exe'
+  end;
+  },
+}
 
 
 --KEYMAPS..
