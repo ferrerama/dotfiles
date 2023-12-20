@@ -47,20 +47,6 @@ vim.g.nord_bold = false
 -- Load the colorscheme
 require('nord').set()
 
-local dap = require('dap')
-dap.configurations.cpp = {
-  {
-  type ="cpp";
-  request = 'launch';
-  name = "Launch file";
-  program = "${file}";
-  gdbPath = function()
-  return 'C:\\Users\\maferrera\\scoop\\apps\\mingw-winlibs-llvm-ucrt-mcf\\13.2.0-16.0.6-11.0.1-r2\\bin\\gdb.exe'
-  end;
-  },
-}
-
-
 --KEYMAPS..
 function map(mode, lhs, rhs, opts)
     local options = { noremap = true }
