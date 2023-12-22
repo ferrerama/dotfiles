@@ -39,3 +39,8 @@ pero si tomo el ejecutable de scoop app mingw clangd.exe.
 
 VER OTRO TIPO DE CONFIGURACIÓN
 https://github.com/dreamsofcode-io/neovim-cpp/tree/main
+
+despues de utilizar NvChad, se volvio a borrar y cargar el init.lua con packer
+no fallo absolutamente nada, salvo que se hizo el proceso de costrucción en el fzf.
+esta vez no se cargo clangd con Mason y se pudo notar que no se requiere,
+ya que automaticamente toma el clang de mingw, quiere decir que antes se estaban complicando demas las cosas.
