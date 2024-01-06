@@ -2,9 +2,10 @@
 ## Archivo de configuración para Linux(Ubuntu) y adaptable a Windows 10/11.
 Esta configuración de nvim con lua, fue inicialmente configurada con el dotfile antiguo(de los videos de Youtube de 3rdx,
 al cual se le agregaron otras funcionalidades. como:
-* Cmake de celledone
-* Se configuro DAP
-* y se corrigieron algunos errores que ocasionaba <tab>, ademas se hicieron cambios para que se use el tema Nord, pero en forma transparente.
+* Cmake de "cdelledone/vim-cmake".
+* Se configuro DAP "mfussenegger/nvim-dap" + DAPui de "rcarriga/nvim-dap-ui".  Esto fue muy dificil de configurar.
+  porque se omitia una simple linea que permite activar el complemento, esto es: require("dapui").setup() esto activa el plugin.
+* y se corrigieron algunos errores que ocasionaba "tab" o cambios para que se use el tema Nord, pero en forma transparente.
 Notar que ya no se utiliza el actual dotfile de 3rdx, el cual tiene muchas mas funcionabilidades.
   
 Para Windows, se recomienda.
