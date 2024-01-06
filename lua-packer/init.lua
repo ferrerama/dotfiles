@@ -9,7 +9,6 @@ use 'kyazdani42/nvim-web-devicons'
 use 'ryanoasis/vim-devicons'
 use 'airblade/vim-gitgutter'
 use 'lukas-reineke/indent-blankline.nvim'
-use 'davidgranstrom/nvim-markdown-preview'
 use 'nvim-lua/plenary.nvim'
 use 'jiangmiao/auto-pairs'
 use 'neovim/nvim-lspconfig'
@@ -32,20 +31,88 @@ use 'norcalli/nvim-colorizer.lua'
 use 'windwp/nvim-ts-autotag'
 use 'rafamadriz/friendly-snippets'
 use 'voldikss/vim-floaterm'
-use 'cdelledonne/vim-cmake'
 use 'shaunsingh/nord.nvim'
+use 'xiyaowong/transparent.nvim'
+use 'cdelledonne/vim-cmake'  -- hay un error temporal ya reportado a desarrollador
+use ({ "iamcco/markdown-preview.nvim", run = function() vim.fn["mkdp#util#install"]() end, })
+use 'mfussenegger/nvim-dap'
+use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
+use {"jay-babu/mason-nvim-dap.nvim", requires = {"williamboman/mason.nvim", "mfussenegger/nvim-dap" }}
+use 'alepez/vim-gtest'
 
--- Color scheme nord
+
+
+--Config DAP
+local dap = require('dap')
+dap.adapters.lldb = {
+  type = 'executable',
+  command = '/usr/bin/lldb-vscode-14', -- adjust as needed, must be absolute path
+  name = 'lldb'
+}
+
+local dap = require('dap')
+dap.configurations.cpp = {
+  {
+    name = 'Launch',
+    type = 'lldb',
+    request = 'launch',
+    program = function()
+      return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+    end,
+    cwd = '${workspaceFolder}',
+    stopOnEntry = false,
+    args = {},
+  },
+}
+
+-- Sirve para lograr debugger grafico, notar que sin el dapui.setup() generara error.
+local dap, dapui = require("dap"), require("dapui")
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated["dapui_config"] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited["dapui_config"] = function()
+  dapui.close()
+end
+
+dapui.setup()
+
+-- jay-babu config, sirve para brindar mas opciones a dap
+require ('mason-nvim-dap').setup({
+    ensure_installed = {'stylua', 'jq'},
+    opts = {
+    handlers = {}, -- sets up dap in the predefined manner
+  }
+})
+
+vim.lsp.set_log_level("debug")
+
+   -- Color scheme nord
 vim.g.nord_contrast = false
-vim.g.nord_borders = true
+vim.g.nord_borders = false
 vim.g.nord_disable_background = true
 vim.g.nord_cursorline_transparent = true
 vim.g.nord_enable_sidebar_background = false
 vim.g.nord_italic = false
-vim.g.nord_uniform_diff_background = true
+vim.g.nord_uniform_diff_background = false
 vim.g.nord_bold = false
 -- Load the colorscheme
 require('nord').set()
+
+-- scheme transparent
+require("transparent").setup({ -- Optional, you don't have to run setup.
+  groups = { -- table: default groups
+    'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
+    'Statement', 'PreProc', 'Type', 'Underlined', 'Todo', 'String', 'Function',
+    'Conditional', 'Repeat', 'Operator', 'Structure', 'LineNr', 'NonText',
+    'SignColumn', 'CursorLine', 'CursorLineNr', 'StatusLine', 'StatusLineNC',
+    'EndOfBuffer',
+  },
+  extra_groups = {}, -- table: additional groups that should be cleared
+  exclude_groups = {}, -- table: groups you don't want to clear
+})
 
 --KEYMAPS..
 function map(mode, lhs, rhs, opts)
@@ -95,11 +162,16 @@ local keymap = vim.api.nvim_set_keymap
 local opts = { noremap = true }
 
 -- CMake
-keymap('', '<leader>mg', ':CMakeGenerate -G "MinGW Makefiles"<cr>', {})
+keymap('', '<leader>mg', ':CMakeGenerate<cr>', {})
 keymap('', '<leader>mt', ':CMakeTest<cr>', {})
 keymap('', '<leader>mb', ':CMakeBuild<cr>', {})
 keymap('', '<leader>mq', ':CMakeClose<cr>', {})
 keymap('', '<leader>mc', ':CMakeClean<cr>', {})
+
+-- DAP KeyMaps
+keymap('', '<leader>db', ':DapToggleBreakpoint<cr>', {})
+keymap('', '<leader>dr', ':DapContinue<cr>', {})
+keymap('', '<leader>dt', ':DapTerminate<cr>', {})
 
 -- floaterm
 vim.cmd[[let g:floaterm_keymap_toggle = '<Leader>f']]
@@ -186,8 +258,11 @@ require('lualine').setup {
     extensions = {}
    }
 
+-- Antes estaba dando un fallo ls.expand daba un errror nulo,
+-- a razo de ello se cambio tanto fila 265 y 82x a C-Tab antes solo estaba Tab
+
 -- LUASNIP
-vim.keymap.set({ "i", "s" }, "<Tab>", function()
+vim.keymap.set({ "i", "s" }, "<C-Tab>", function()
     if ls.expand_or_jumpable() then
         ls.expand_or_jump()
     end
@@ -644,7 +719,7 @@ cmp.setup({
     },
     mapping = cmp.mapping.preset.insert({
         ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-        ["<Tab>"] = cmp.mapping(function(fallback)
+        ["<C-Tab>"] = cmp.mapping(function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
             elseif luasnip.expand_or_jumpable() then

@@ -1,2 +1,0 @@
-Estas son las carpetas que el usuario personalizo,
-pero estas se deben agregar a lo que se extrae de nvchad
