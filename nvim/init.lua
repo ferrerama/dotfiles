@@ -1,4 +1,5 @@
 vim.opt.termguicolors = true
+local set = vim.opt
 
 return require('packer').startup(function(use)
 -- PLUGINS
@@ -8,6 +9,7 @@ use 'nvim-lualine/lualine.nvim'
 use 'kyazdani42/nvim-web-devicons'
 use 'ryanoasis/vim-devicons'
 use 'airblade/vim-gitgutter'
+use 'antoinemadec/FixCursorHold.nvim'
 use 'lukas-reineke/indent-blankline.nvim'
 use 'nvim-lua/plenary.nvim'
 use 'jiangmiao/auto-pairs'
@@ -33,14 +35,19 @@ use 'rafamadriz/friendly-snippets'
 use 'voldikss/vim-floaterm'
 use 'shaunsingh/nord.nvim'
 use 'xiyaowong/transparent.nvim'
-use 'cdelledonne/vim-cmake'  -- hay un error temporal ya reportado a desarrollador
+use 'cdelledonne/vim-cmake'
 use ({ "iamcco/markdown-preview.nvim", run = function() vim.fn["mkdp#util#install"]() end, })
 use 'mfussenegger/nvim-dap'
 use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 use {"jay-babu/mason-nvim-dap.nvim", requires = {"williamboman/mason.nvim", "mfussenegger/nvim-dap" }}
-use 'alepez/vim-gtest'
+use 'jose-elias-alvarez/null-ls.nvim'
 
+-- para compilar y ejecutar un programa c++
+vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
+    command = "map <f5> <ESC>:!g++ %<CR><CR><ESC>:FloatermNew<CR>./a.out<CR>"})
 
+vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
+    command = "map <f6> <ESC>:FloatermNew<CR>g++ -std=c++17 -o test main.cpp && ./test<CR>"})
 
 --Config DAP
 local dap = require('dap')
@@ -77,6 +84,7 @@ dap.listeners.before.event_exited["dapui_config"] = function()
   dapui.close()
 end
 
+-- Sin esta linea no funcionara Dapui
 dapui.setup()
 
 -- jay-babu config, sirve para brindar mas opciones a dap
@@ -87,9 +95,50 @@ require ('mason-nvim-dap').setup({
   }
 })
 
-vim.lsp.set_log_level("debug")
+-- Este plug aparentemente mejora la experiencia LSP la realidad es que no, ya no tiene soporte
+local null_ls = require("null-ls")
+local helpers = require("null-ls.helpers")
 
-   -- Color scheme nord
+local markdownlint = {
+    method = null_ls.methods.DIAGNOSTICS,
+    filetypes = { "markdown" },
+    -- null_ls.generator creates an async source
+    -- that spawns the command with the given arguments and options
+    generator = null_ls.generator({
+        command = "markdownlint",
+        args = { "--stdin" },
+        to_stdin = true,
+        from_stderr = true,
+        -- choose an output format (raw, json, or line)
+        format = "line",
+        check_exit_code = function(code, stderr)
+            local success = code <= 1
+
+            if not success then
+                -- can be noisy for things that run often (e.g. diagnostics), but can
+                -- be useful for things that run on demand (e.g. formatting)
+                print(stderr)
+            end
+
+            return success
+        end,
+        -- use helpers to parse the output from string matchers,
+        -- or parse it manually with a function
+        on_output = helpers.diagnostics.from_patterns({
+            {
+                pattern = [[:(%d+):(%d+) [%w-/]+ (.*)]],
+                groups = { "row", "col", "message" },
+            },
+            {
+                pattern = [[:(%d+) [%w-/]+ (.*)]],
+                groups = { "row", "message" },
+            },
+        }),
+    }),
+}
+null_ls.register(markdownlint)
+
+-- Color scheme nord
 vim.g.nord_contrast = false
 vim.g.nord_borders = false
 vim.g.nord_disable_background = true
@@ -126,11 +175,15 @@ end
 -- Define the Leader with space
 vim.g.mapleader = ' '
 
+-- compile json
+vim.g.cmake_link_compile_commands = 1
+
 -- For indent two spaces
 vim.opt.sw=2
 
 -- for show number and show in red error(alert) gitgutter
 vim.opt.number = true
+
 
 map ('n','<C-j>','<C-w>j')
 map ('n','<C-h>','<C-w>h')
@@ -144,7 +197,7 @@ map ('v','<C-c>','+y')
 map ('n','<C-a>','ggVG')
 
 -- split window vertically
-vim.keymap.set('n', '<leader>ev', ':vsplit $MYVIMRC<CR>',{noremap = true})
+vim.keymap.set('n', '<leader>vt', ':vsplit $MYVIMRC<CR>',{noremap = true})
 
 --close window
 map ('n','<C-q>',':q<CR>')
@@ -157,16 +210,17 @@ map ('n','<C-w>j','<C-w>-')
 map ('n','<C-w>k','<C-w>+')
 map ('n','<C-w>l','<C-w><')
 
+
 --KEYMAPS_PLUGS
 local keymap = vim.api.nvim_set_keymap
 local opts = { noremap = true }
 
 -- CMake
 keymap('', '<leader>mg', ':CMakeGenerate<cr>', {})
-keymap('', '<leader>mt', ':CMakeTest<cr>', {})
 keymap('', '<leader>mb', ':CMakeBuild<cr>', {})
-keymap('', '<leader>mq', ':CMakeClose<cr>', {})
+keymap('', '<leader>mt', ':CMakeTest<cr>', {})
 keymap('', '<leader>mc', ':CMakeClean<cr>', {})
+keymap('', '<leader>mq', ':CMakeClose<cr>', {})
 
 -- DAP KeyMaps
 keymap('', '<leader>db', ':DapToggleBreakpoint<cr>', {})
@@ -176,7 +230,10 @@ keymap('', '<leader>dt', ':DapTerminate<cr>', {})
 -- floaterm
 vim.cmd[[let g:floaterm_keymap_toggle = '<Leader>f']]
 vim.cmd[[let g:floaterm_wintype = 'split']]
-vim.cmd[[let g:floaterm_height = 0.2]]
+vim.cmd[[let g:floaterm_height = 0.3]]
+keymap('', '<C-t>', ':FloatermNew fff<cr>', {})
+map ('n','<leader>vv', ':vert :term<CR>')
+set.splitright = true  --esto es para que la terminal vertical este en la izquierda
 
 --AUTOTAG
 require 'nvim-treesitter.configs'.setup {
@@ -551,8 +608,8 @@ require('telescope').load_extension('fzf')
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
 vim.keymap.set('n', '<leader>fr', builtin.live_grep, {})
-vim.keymap.set('n', '<leader>fg', builtin.git_commits, {})
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+--vim.keymap.set('n', '<leader>fg', builtin.git_commits, {})
 
 -- TREESITTER
 require 'nvim-treesitter.configs'.setup {
@@ -602,10 +659,10 @@ lspconfig.cssls.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
-lspconfig.ltex.setup {
-    capabilities = capabilities,
-    on_attach = on_attach
-}
+--lspconfig.ltex.setup {
+--    capabilities = capabilities,
+--    on_attach = on_attach
+--}
 lspconfig.vimls.setup {
     capabilities = capabilities,
     on_attach = on_attach
