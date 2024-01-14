@@ -42,7 +42,8 @@ use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 use {"jay-babu/mason-nvim-dap.nvim", requires = {"williamboman/mason.nvim", "mfussenegger/nvim-dap" }}
 use 'jose-elias-alvarez/null-ls.nvim'
 
--- para compilar y ejecutar un programa c++
+-- Sirve para compilar c++ sin utilizar CMakeGenerate
+-- 
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
     command = "map <f5> <ESC>:!g++ %<CR><CR><ESC>:FloatermNew<CR>./a.out<CR>"})
 
