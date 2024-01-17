@@ -40,10 +40,8 @@ use ({ "iamcco/markdown-preview.nvim", run = function() vim.fn["mkdp#util#instal
 use 'mfussenegger/nvim-dap'
 use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
 use {"jay-babu/mason-nvim-dap.nvim", requires = {"williamboman/mason.nvim", "mfussenegger/nvim-dap" }}
-use 'jose-elias-alvarez/null-ls.nvim'
 
 -- Sirve para compilar c++ sin utilizar CMakeGenerate
--- 
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
     command = "map <f5> <ESC>:!g++ %<CR><CR><ESC>:FloatermNew<CR>./a.out<CR>"})
 
@@ -96,49 +94,6 @@ require ('mason-nvim-dap').setup({
   }
 })
 
--- Este plug aparentemente mejora la experiencia LSP la realidad es que no, ya no tiene soporte
-local null_ls = require("null-ls")
-local helpers = require("null-ls.helpers")
-
-local markdownlint = {
-    method = null_ls.methods.DIAGNOSTICS,
-    filetypes = { "markdown" },
-    -- null_ls.generator creates an async source
-    -- that spawns the command with the given arguments and options
-    generator = null_ls.generator({
-        command = "markdownlint",
-        args = { "--stdin" },
-        to_stdin = true,
-        from_stderr = true,
-        -- choose an output format (raw, json, or line)
-        format = "line",
-        check_exit_code = function(code, stderr)
-            local success = code <= 1
-
-            if not success then
-                -- can be noisy for things that run often (e.g. diagnostics), but can
-                -- be useful for things that run on demand (e.g. formatting)
-                print(stderr)
-            end
-
-            return success
-        end,
-        -- use helpers to parse the output from string matchers,
-        -- or parse it manually with a function
-        on_output = helpers.diagnostics.from_patterns({
-            {
-                pattern = [[:(%d+):(%d+) [%w-/]+ (.*)]],
-                groups = { "row", "col", "message" },
-            },
-            {
-                pattern = [[:(%d+) [%w-/]+ (.*)]],
-                groups = { "row", "message" },
-            },
-        }),
-    }),
-}
-null_ls.register(markdownlint)
-
 -- Color scheme nord
 vim.g.nord_contrast = false
 vim.g.nord_borders = false
@@ -150,19 +105,6 @@ vim.g.nord_uniform_diff_background = false
 vim.g.nord_bold = false
 -- Load the colorscheme
 require('nord').set()
-
--- scheme transparent
-require("transparent").setup({ -- Optional, you don't have to run setup.
-  groups = { -- table: default groups
-    'Normal', 'NormalNC', 'Comment', 'Constant', 'Special', 'Identifier',
-    'Statement', 'PreProc', 'Type', 'Underlined', 'Todo', 'String', 'Function',
-    'Conditional', 'Repeat', 'Operator', 'Structure', 'LineNr', 'NonText',
-    'SignColumn', 'CursorLine', 'CursorLineNr', 'StatusLine', 'StatusLineNC',
-    'EndOfBuffer',
-  },
-  extra_groups = {}, -- table: additional groups that should be cleared
-  exclude_groups = {}, -- table: groups you don't want to clear
-})
 
 --KEYMAPS..
 function map(mode, lhs, rhs, opts)
@@ -185,7 +127,6 @@ vim.opt.sw=2
 -- for show number and show in red error(alert) gitgutter
 vim.opt.number = true
 
-
 map ('n','<C-j>','<C-w>j')
 map ('n','<C-h>','<C-w>h')
 map ('n','<C-k>','<C-w>k')
@@ -197,9 +138,6 @@ map ('v','<C-c>','+y')
 -- select all
 map ('n','<C-a>','ggVG')
 
--- split window vertically
-vim.keymap.set('n', '<leader>vt', ':vsplit $MYVIMRC<CR>',{noremap = true})
-
 --close window
 map ('n','<C-q>',':q<CR>')
 
@@ -210,7 +148,6 @@ map ('n','<C-w>h','<C-w>>')
 map ('n','<C-w>j','<C-w>-')
 map ('n','<C-w>k','<C-w>+')
 map ('n','<C-w>l','<C-w><')
-
 
 --KEYMAPS_PLUGS
 local keymap = vim.api.nvim_set_keymap
@@ -315,9 +252,6 @@ require('lualine').setup {
     tabline = {},
     extensions = {}
    }
-
--- Antes estaba dando un fallo ls.expand daba un errror nulo,
--- a razo de ello se cambio tanto fila 265 y 82x a C-Tab antes solo estaba Tab
 
 -- LUASNIP
 vim.keymap.set({ "i", "s" }, "<C-Tab>", function()
@@ -610,7 +544,7 @@ local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
 vim.keymap.set('n', '<leader>fr', builtin.live_grep, {})
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
---vim.keymap.set('n', '<leader>fg', builtin.git_commits, {})
+vim.keymap.set('n', '<leader>fg', builtin.git_commits, {})
 
 -- TREESITTER
 require 'nvim-treesitter.configs'.setup {
@@ -660,10 +594,6 @@ lspconfig.cssls.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
---lspconfig.ltex.setup {
---    capabilities = capabilities,
---    on_attach = on_attach
---}
 lspconfig.vimls.setup {
     capabilities = capabilities,
     on_attach = on_attach
@@ -674,17 +604,14 @@ lua_ls = {
     telemetry = { enable = false },
   },
 },
-
 lspconfig.tsserver.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
-
 lspconfig.clangd.setup {
     capabilities = capabilities,
     on_attach = on_attach
 }
-
 lspconfig.html.setup {
     capabilities = capabilities,
     on_attach = on_attach
