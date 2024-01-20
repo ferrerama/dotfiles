@@ -44,7 +44,6 @@ use {"jay-babu/mason-nvim-dap.nvim", requires = {"williamboman/mason.nvim", "mfu
 -- Sirve para compilar c++ sin utilizar CMakeGenerate
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
     command = "map <f5> <ESC>:!g++ %<CR><CR><ESC>:FloatermNew<CR>./a.out<CR>"})
-
 vim.api.nvim_create_autocmd("FileType", { pattern = "cpp", 
     command = "map <f6> <ESC>:FloatermNew<CR>g++ -std=c++17 -o test main.cpp && ./test<CR>"})
 
@@ -83,8 +82,7 @@ dap.listeners.before.event_exited["dapui_config"] = function()
   dapui.close()
 end
 
--- Sin esta linea no funcionara Dapui
-dapui.setup()
+dapui.setup() --sin esta linea no funcionara Dapui
 
 -- jay-babu config, sirve para brindar mas opciones a dap
 require ('mason-nvim-dap').setup({
