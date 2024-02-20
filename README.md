@@ -34,6 +34,5 @@ y que ademas provee un nivel grafico al nivel de Visual Studio Code.
 
 Sin embargo personalmente me gusta mas los estilos sencillos, aunque eso llevo mucho tiempo de configurar, porque al parecer
 Lazy tiene una mejor sincronizacion y hace que los paquetes funcionen aun con omisiones, que es lo que utiliza nvchad.
-Queda a total criterio de quien lo quiera utilizar, puede ser esa configuración o modificaciones propias.
---->
+---**>
 
